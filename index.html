@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SOS – Sportello Debitori Anonimi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0D1B2A}
+#sos-app{min-height:100vh;font-family:'Segoe UI',system-ui,sans-serif;color:#EDE8DF;background:#0D1B2A}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:rgba(200,168,75,0.2);border-radius:2px}
+textarea,input,button{font-family:inherit}
+textarea::placeholder,input::placeholder{color:#3A5265}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,80%,100%{opacity:.2;transform:scale(.7)}40%{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.fade-0{animation:fadeUp .7s ease .0s both}
+.fade-1{animation:fadeUp .7s ease .1s both}
+.fade-2{animation:fadeUp .7s ease .2s both}
+.fade-3{animation:fadeUp .7s ease .3s both}
+.fade-4{animation:fadeUp .7s ease .4s both}
+.fade-5{animation:fadeUp .7s ease .5s both}
+
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#7A92A6;margin:0 2px}
+.dot:nth-child(1){animation:bounce 1.2s ease 0s infinite}
+.dot:nth-child(2){animation:bounce 1.2s ease .17s infinite}
+.dot:nth-child(3){animation:bounce 1.2s ease .34s infinite}
+.pulse-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3FA89A;animation:pulse 2s infinite;margin-right:5px}
+
+.inp-style{
+  width:100%;background:rgba(255,255,255,0.04);
+  border:1px solid rgba(200,168,75,0.10);border-radius:8px;
+  color:#EDE8DF;padding:12px 14px;font-size:14px;outline:none;
+}
+.inp-style:focus{border-color:rgba(200,168,75,0.22)}
+
+.btn-gold{
+  background:#C8A84B;border:none;border-radius:3px;
+  color:#0D1B2A;font-size:12px;letter-spacing:.2em;
+  text-transform:uppercase;cursor:pointer;font-weight:600;
+  padding:15px 46px;transition:background .25s;
+}
+.btn-gold:hover{background:#E0C06A}
+.btn-outline{
+  background:transparent;border:1.5px solid #C8A84B;color:#C8A84B;
+  padding:15px 50px;font-size:12px;letter-spacing:.24em;text-transform:uppercase;
+  cursor:pointer;border-radius:3px;transition:all .3s;
+}
+.btn-outline:hover{background:#C8A84B;color:#0D1B2A}
+.btn-exit{
+  background:none;border:1px solid rgba(200,168,75,0.10);color:#7A92A6;
+  border-radius:6px;padding:6px 16px;font-size:11px;cursor:pointer;
+  letter-spacing:.1em;transition:all .2s;
+}
+.btn-exit:hover{border-color:#C8A84B;color:#C8A84B}
+.btn-teal{
+  background:#3FA89A;border:none;border-radius:4px;padding:10px 26px;
+  color:#fff;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  cursor:pointer;transition:background .2s;
+}
+.btn-teal:hover{background:#5ECABC}
+
+/* HERO */
+#hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 60px;text-align:center!important}
+#hero-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 55% 45% at 15% 55%,rgba(63,168,154,0.06) 0%,transparent 70%),radial-gradient(ellipse 50% 50% at 85% 25%,rgba(200,168,75,0.05) 0%,transparent 70%)}
+#hero-exit{position:absolute;top:16px;right:20px}
+#hero-brand{text-align:center;margin-bottom:40px}
+#hero-title-big{font-size:20px;color:#C8A84B;letter-spacing:.20em;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+#hero-subtitle{font-size:12px;color:#7A92A6;letter-spacing:.12em}
+#hero-subtitle a{color:#7A92A6;text-decoration:none;border-bottom:1px solid transparent;transition:all .2s}
+#hero-subtitle a:hover{color:#E0C06A;border-bottom-color:#C8A84B}
+#hero-eyebrow{font-size:11px;letter-spacing:.28em;color:#C8A84B;text-transform:uppercase;margin-bottom:22px}
+#hero-h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(36px,7vw,70px);font-weight:400;line-height:1.1;margin:0 0 26px;text-align:center!important;width:100%}
+#hero-h1 em{color:#E0C06A;font-style:italic}
+#hero-p{max-width:460px;color:#7A92A6;line-height:1.85;margin-bottom:44px;font-size:15px;font-weight:300;text-align:center;margin-left:auto;margin-right:auto}
+#hero-trust{display:flex;gap:6px;align-items:center;margin-top:14px;flex-wrap:wrap;justify-content:center;font-size:11px;color:#3A5265}
+#hero-feats{display:flex;gap:48px;margin-top:68px;flex-wrap:wrap;justify-content:center}
+.feat-item{text-align:center;max-width:130px}
+.feat-icon{font-size:24px;margin-bottom:9px}
+.feat-name{font-size:12px;color:#EDE8DF;font-weight:500}
+.feat-desc{font-size:11px;color:#7A92A6;margin-top:4px;line-height:1.5}
+#hero-legal{position:absolute;bottom:0;left:0;right:0;border-top:1px solid rgba(200,168,75,0.10);padding:10px 24px;display:flex;justify-content:center;gap:22px;flex-wrap:wrap}
+.legal-tag{font-size:9.5px;color:#3A5265;letter-spacing:.1em}
+
+/* CHAT */
+#chat{flex-direction:column;height:100vh;background:#0D1B2A}
+#chat-msgs{flex:1;overflow-y:auto;padding:16px}
+#chat-msgs-inner{max-width:660px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:13px}
+#chat-hdr{padding:13px 20px;border-bottom:1px solid rgba(200,168,75,0.10);display:flex;align-items:center;gap:12px;background:#111F30;flex-shrink:0}
+#chat-hdr-info{flex:1}
+#chat-hdr-name{font-size:14px;font-weight:600;color:#EDE8DF}
+#chat-hdr-status{font-size:10px;color:#3FA89A;margin-top:2px;display:flex;align-items:center}
+#chat-hdr-right{font-size:10px;color:#3A5265;text-align:right}
+#chat-hdr-right a{color:#7A92A6;text-decoration:none;font-size:10px;border-bottom:1px solid transparent;transition:all .2s}
+#chat-hdr-right a:hover{color:#E0C06A;border-bottom-color:#C8A84B}
+#chat-msgs{flex:1;overflow-y:auto;padding:22px 16px}
+#chat-msgs-inner{max-width:660px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:13px}
+.msg-row-user{display:flex;justify-content:flex-end}
+.msg-row-ai{display:flex;justify-content:flex-start}
+.bubble-user{max-width:76%;padding:12px 15px;border-radius:16px 4px 16px 16px;background:rgba(200,168,75,0.12);border:1px solid rgba(200,168,75,0.22);font-size:14px;line-height:1.75;color:#EDE8DF;white-space:pre-wrap}
+.bubble-ai{max-width:76%;padding:12px 15px;border-radius:4px 16px 16px 16px;background:#162840;border:1px solid rgba(200,168,75,0.10);font-size:14px;line-height:1.75;color:#EDE8DF;white-space:pre-wrap}
+.bubble-ai a{color:#E0C06A;border-bottom:1px solid #C8A84B;text-decoration:none}
+#typing-indicator{display:none}
+#typing-dots{padding:13px 17px;border-radius:4px 16px 16px 16px;background:#162840;border:1px solid rgba(200,168,75,0.10);display:inline-flex;align-items:center}
+#typing-note{font-size:9.5px;color:#3A5265;padding-left:4px;margin-top:4px}
+#err-msg{padding:11px 15px;border-radius:8px;background:rgba(212,100,90,0.12);border:1px solid rgba(212,100,90,0.25);color:#D4645A;font-size:13px;display:none}
+#chat-input-area{border-top:1px solid rgba(200,168,75,0.10);padding:12px 16px;background:#111F30;flex-shrink:0}
+#chat-input-wrap{max-width:660px;margin:0 auto;display:flex;gap:10px;align-items:flex-end}
+#chat-ta{flex:1;resize:none;background:rgba(255,255,255,0.04);border:1px solid rgba(200,168,75,0.10);border-radius:8px;color:#EDE8DF;padding:12px 14px;font-size:14px;line-height:1.6;outline:none}
+#chat-ta:focus{border-color:rgba(200,168,75,0.22)}
+#send-btn{width:44px;height:44px;border-radius:10px;border:none;background:#162840;color:#3A5265;font-size:16px;cursor:not-allowed;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+#send-btn.active{background:#C8A84B;color:#0D1B2A;cursor:pointer}
+#chat-note{font-size:9.5px;color:#3A5265;margin-top:7px;text-align:center;letter-spacing:.05em}
+
+/* ANALYSIS */
+#analysis{min-height:100vh;overflow-y:auto;background:#0D1B2A}
+#analysis-inner{max-width:800px;margin:0 auto;padding:40px 20px 80px}
+#ana-badge{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:5px 16px;border:1px solid rgba(200,168,75,0.10);border-radius:20px;font-size:10px;color:#C8A84B;letter-spacing:.22em;text-transform:uppercase}
+#ana-h2{font-family:Georgia,serif;font-size:clamp(24px,5vw,40px);font-weight:400;margin:0 0 14px;line-height:1.15;text-align:center}
+#ana-h2 em{color:#E0C06A;font-style:italic}
+#ana-summary{color:#7A92A6;line-height:1.8;max-width:510px;margin:0 auto;font-size:14px;text-align:center}
+#ana-prot{background:rgba(63,168,154,0.12);border:1px solid rgba(63,168,154,0.3);border-radius:12px;padding:15px 20px;margin-top:20px;display:none;align-items:center;gap:12px}
+.prot-title{font-size:10.5px;color:#3FA89A;letter-spacing:.14em;text-transform:uppercase}
+.prot-val{font-size:13px;color:#5ECABC;margin-top:3px}
+#score-card{background:#111F30;border:1px solid rgba(200,168,75,0.10);border-radius:16px;padding:32px 26px;margin:20px 0 14px;text-align:center}
+#score-label{font-size:11px;letter-spacing:.22em;color:#7A92A6;text-transform:uppercase;margin-bottom:18px}
+#score-num{font-family:Georgia,serif;font-size:clamp(56px,10vw,86px);font-weight:300;line-height:1}
+#score-text{font-size:11.5px;margin-top:5px;letter-spacing:.1em;text-transform:uppercase}
+#score-bar-wrap{max-width:400px;margin:22px auto 0}
+#score-bar-bg{height:5px;background:rgba(255,255,255,0.05);border-radius:3px}
+#score-bar{height:100%;width:0%;background:linear-gradient(90deg,#D4645A,#C8A84B,#3FA89A);border-radius:3px;transition:width 1.4s cubic-bezier(.22,1,.36,1)}
+#score-bar-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:9.5px;color:#3A5265}
+#gauges-row{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:14px}
+.gauge-card{background:#111F30;border:1px solid rgba(200,168,75,0.10);border-radius:13px;padding:18px 6px;display:flex;flex-direction:column;align-items:center}
+.gauge-sub{font-size:10px;color:#3A5265;margin-top:5px;text-align:center;line-height:1.4}
+#rdn-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:14px}
+.rdn-card{background:#111F30;border:1px solid rgba(200,168,75,0.10);border-radius:11px;padding:16px}
+.rdn-label{font-size:10px;color:#7A92A6;text-transform:uppercase;letter-spacing:.09em;margin-bottom:7px}
+.rdn-val{font-size:19px;font-weight:500;font-family:Georgia,serif}
+.rdn-note{font-size:10px;margin-top:3px;opacity:.75}
+#ost-block{background:rgba(212,100,90,0.12);border:1px solid rgba(212,100,90,0.25);border-radius:12px;padding:18px 20px;margin-bottom:14px;display:none}
+.ost-title{font-size:11px;color:#D4645A;letter-spacing:.16em;text-transform:uppercase;margin-bottom:9px}
+#ost-list{margin:0;padding:0 0 0 16px;color:#EDE8DF;font-size:13px;line-height:2}
+#proc-card{background:#111F30;border:1px solid rgba(200,168,75,0.10);border-radius:13px;padding:22px;margin-bottom:14px}
+.proc-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;flex-wrap:wrap;gap:8px}
+.proc-title{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:#7A92A6}
+.urgency-badge{font-size:11px;padding:4px 12px;border-radius:20px}
+#proc-pills{display:flex;flex-wrap:wrap;gap:9px}
+.proc-pill{font-size:12px;padding:7px 13px;border-radius:6px;background:rgba(63,168,154,0.12);border:1px solid rgba(63,168,154,0.2);color:#5ECABC}
+#rec-card{background:rgba(200,168,75,0.05);border:1px solid rgba(200,168,75,0.22);border-radius:13px;padding:22px;margin-bottom:14px}
+.rec-label{font-size:10px;color:#C8A84B;letter-spacing:.2em;text-transform:uppercase;margin-bottom:11px}
+#rec-text{color:#EDE8DF;line-height:1.85;font-size:13.5px;font-weight:300}
+#rec-text a{color:#E0C06A;border-bottom:1px solid #C8A84B;text-decoration:none}
+#pdf-block{background:rgba(63,168,154,0.12);border:1px solid rgba(63,168,154,0.22);border-radius:13px;padding:22px;margin-bottom:18px}
+.pdf-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+.pdf-left{flex:1;min-width:190px}
+.pdf-left-title{font-size:13px;font-weight:500;color:#5ECABC;margin-bottom:7px}
+.pdf-left-desc{font-size:12.5px;color:#7A92A6;line-height:1.7}
+.pdf-right{text-align:center;flex-shrink:0}
+.pdf-price{font-size:24px;font-weight:300;color:#C8A84B;font-family:Georgia,serif;margin-bottom:7px}
+#ana-cta{text-align:center;margin-top:4px}
+.ana-cta-p{color:#7A92A6;margin-bottom:22px;font-size:13.5px;line-height:1.8}
+#ana-legal{margin-top:52px;padding-top:20px;border-top:1px solid rgba(200,168,75,0.10);font-size:10px;color:#3A5265;text-align:center;line-height:2}
+
+/* PAY MODAL */
+#pay-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
+#pay-overlay.open{display:flex}
+#pay-modal{background:#111F30;border:1px solid rgba(200,168,75,0.10);border-radius:18px;padding:30px;max-width:410px;width:100%}
+.pay-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.pay-hdr-title{font-size:15px;font-weight:600;color:#EDE8DF}
+.pay-hdr-sub{font-size:11px;color:#7A92A6;margin-top:2px}
+.pay-hdr-sub span{color:#C8A84B}
+#pay-close{background:none;border:1px solid rgba(200,168,75,0.10);color:#7A92A6;border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.pay-label{font-size:10px;color:#7A92A6;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:5px}
+.pay-row2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px}
+#pay-btn{width:100%;padding:13px;border:none;border-radius:6px;font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:600;margin-bottom:11px;cursor:not-allowed;background:#162840;color:#3A5265;transition:all .2s}
+#pay-btn.active{background:#C8A84B;color:#0D1B2A;cursor:pointer}
+.pay-note{font-size:10px;color:#3A5265;text-align:center;line-height:1.7}
+#pay-success{text-align:center;display:none}
+#pay-processing{text-align:center;padding:22px 0;display:none}
+#pay-form-content{display:block}
+
+/* CONTACT */
+#contact{min-height:100vh;overflow-y:auto;background:#0D1B2A}
+#contact-inner{max-width:530px;margin:0 auto;padding:52px 24px 80px;text-align:center}
+#contact-form{display:block}
+#contact-thanks{display:none;text-align:center}
+.thanks-check{width:58px;height:58px;border-radius:50%;background:rgba(63,168,154,0.12);border:1px solid rgba(63,168,154,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:24px}
+.thanks-h2{font-family:Georgia,serif;font-size:34px;font-weight:400;margin:0 0 14px;color:#EDE8DF}
+.thanks-p{color:#7A92A6;line-height:1.85;margin-bottom:26px;font-size:13.5px}
+.thanks-q{font-family:Georgia,serif;font-size:19px;font-style:italic;color:#C8A84B;line-height:1.7;margin:0 0 34px}
+.thanks-btns{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
+.btn-muted{background:none;border:1px solid rgba(200,168,75,0.10);color:#7A92A6;padding:9px 20px;border-radius:4px;cursor:pointer;font-size:12px;transition:all .2s}
+.btn-muted:hover{border-color:#C8A84B;color:#C8A84B}
+.cnt-eyebrow{font-size:10px;letter-spacing:.26em;color:#C8A84B;text-transform:uppercase;margin-bottom:16px}
+.cnt-h2{font-family:Georgia,serif;font-size:clamp(26px,5vw,40px);font-weight:400;margin:0 0 13px;line-height:1.2}
+.cnt-h2 em{color:#E0C06A;font-style:italic}
+.cnt-p{color:#7A92A6;line-height:1.8;margin-bottom:32px;font-size:13.5px}
+#method-btns{display:flex;gap:9px;margin-bottom:20px;justify-content:center;flex-wrap:wrap}
+.method-btn{padding:8px 16px;border-radius:6px;cursor:pointer;font-size:12px;border:1px solid rgba(200,168,75,0.10);background:transparent;color:#7A92A6;transition:all .2s}
+.method-btn.active{border-color:#C8A84B;background:rgba(200,168,75,0.12);color:#C8A84B}
+.cnt-label{font-size:10px;color:#7A92A6;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:5px;text-align:left}
+.cnt-field{margin-bottom:13px}
+.cnt-field-last{margin-bottom:22px}
+.cnt-privacy{background:rgba(63,168,154,0.12);border:1px solid rgba(63,168,154,0.18);border-radius:8px;padding:11px 15px;margin-bottom:20px;font-size:11px;color:#5ECABC;line-height:1.7;text-align:left}
+#submit-btn{width:100%;padding:15px;border:none;border-radius:4px;font-size:12px;letter-spacing:.17em;text-transform:uppercase;font-weight:600;cursor:not-allowed;background:#162840;color:#3A5265;transition:all .2s}
+#submit-btn.active{background:#C8A84B;color:#0D1B2A;cursor:pointer}
+.cnt-note{margin-top:14px;font-size:10px;color:#3A5265;line-height:1.8}
+
+#chat-controls{flex-shrink:0;background:#0D1B2A;border-top:1px solid rgba(63,168,154,0.15)}
+#voice-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap}
+#chat-input-area{padding:6px 16px 12px;background:#0D1B2A}
+#chat-input-wrap{max-width:660px;margin:0 auto;display:flex;gap:10px;align-items:flex-end}
+#chat-ta{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(63,168,154,0.2);border-radius:8px;color:#EDE8DF;padding:10px 14px;font-size:14px;font-family:'Segoe UI',system-ui,sans-serif;resize:none;outline:none;min-height:40px;max-height:120px}
+#write-mode-btn{background:none;border:1px solid rgba(122,146,166,0.2);border-radius:4px;color:#7A92A6;font-size:11px;padding:6px 10px;cursor:pointer;white-space:nowrap;transition:all .2s}
+#write-mode-btn:hover{border-color:#5ECABC;color:#5ECABC}
+
+
+#chat-msgs{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+#chat-msgs-inner{max-width:660px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:13px}
+#chat-controls{flex-shrink:0;background:#0D1B2A;border-top:1px solid rgba(63,168,154,0.12)}
+#voice-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap;background:rgba(17,31,48,0.95)}
+#mic-btn{font-size:24px;background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;transition:all .2s}
+#mic-btn:hover{background:rgba(63,168,154,0.15)}
+#mic-btn.recording{animation:pulse 0.8s infinite}
+#mic-btn.speaking-voice{animation:pulse 1.2s infinite}
+#write-mode-btn{background:none;border:1px solid rgba(122,146,166,0.2);border-radius:4px;color:#7A92A6;font-size:11px;padding:6px 10px;cursor:pointer;white-space:nowrap}
+#write-mode-btn:hover{border-color:#5ECABC;color:#5ECABC}
+
+
+#gdpr-banner{position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0D1B2A;border-top:1px solid rgba(63,168,154,0.3);padding:16px 20px;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;justify-content:space-between;transform:translateY(100%);transition:transform .4s ease}
+#gdpr-banner.visible{transform:translateY(0)}
+.gdpr-btn-accept{background:#3FA89A;border:none;border-radius:4px;color:white;padding:8px 18px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.gdpr-btn-reject{background:none;border:1px solid rgba(122,146,166,0.3);border-radius:4px;color:#7A92A6;padding:8px 14px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit}
+
+
+#chat-msgs{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+#chat-msgs-inner{max-width:660px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:13px}
+</style>
+</head>
+<body>
+<div id="sos-app">
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<div id="hero">
+  <div id="hero-glow"></div>
+  <div id="hero-exit"><button class="btn-exit" onclick="window.location.href='https://www.italiasenzadebiti.it'">Esci ✕</button></div>
+  <div id="hero-brand" class="fade-0">
+    <div id="hero-title-big">SOS · SPORTELLO DEBITORI ANONIMI</div>
+    <div id="hero-subtitle">Servizio offerto da <a href="https://www.italiasenzadebiti.it" target="_blank" rel="noopener">ITALIA SENZA DEBITI</a></div>
+  </div>
+  <div id="hero-eyebrow" class="fade-1">Sportello Anonimo · Sessione Riservata</div>
+  <h1 id="hero-h1" class="fade-2">
+    Ritorna a sorridere:<br>
+    <em>è un tuo</em><br>
+    DIRITTO!
+  </h1>
+  <p id="hero-p" class="fade-3">
+    Un dialogo riservato con <strong style="color:#EDE8DF;font-weight:400">LIA</strong>
+    (Legal Agent IA), l'assistente virtuale giuridica che analizza la tua situazione debitoria
+    nel rispetto del <span style="color:#EDE8DF">Codice della Crisi</span>.
+    Nessun nome. Nessun giudizio.
+    <span style="color:#E0C06A">Solo soluzioni previste per legge.</span>
+  </p>
+  <div class="fade-4">
+    <button class="btn-outline" onclick="startChat()">Inizia in Anonimo con LIA ▸</button>
+    <button onclick="window.open('https://italiasenzadebiti.it/sos-sportello-anonimi-isd','_blank')" style="background:none;border:1px solid rgba(63,168,154,0.3);border-radius:4px;color:#5ECABC;font-size:11px;letter-spacing:.15em;text-transform:uppercase;padding:10px 32px;cursor:pointer;transition:all .2s">⚡ Questionario Rapido (3 min)</button>
+  </div>
+  <div id="hero-trust" class="fade-5">
+    <span>Dialogo privato</span>
+    <span style="color:#3A5265">·</span>
+    <span>Nessun dato salvato senza consenso</span>
+    <span style="color:#3A5265">·</span>
+    <span>Sessione cifrata</span>
+  </div>
+  <div id="hero-feats" class="fade-5">
+    <div class="feat-item"><div class="feat-icon">🔒</div><div class="feat-name">Anonimato Totale</div><div class="feat-desc">Nessun dato identificativo</div></div>
+    <div class="feat-item"><div class="feat-icon">⚖️</div><div class="feat-name">Analisi CCII</div><div class="feat-desc">ISR · ICA · IPE</div></div>
+    <div class="feat-item"><div class="feat-icon">👥</div><div class="feat-name">Team Nazionale</div><div class="feat-desc">Consulenti fuori territorio</div></div>
+  </div>
+  <div id="hero-legal">
+    <span class="legal-tag">Conforme artt.67–73 CCII</span>
+    <span class="legal-tag">GDPR Art.17 compliant</span>
+    <span class="legal-tag">Fonti: dirittodellacrisi.it</span>
+  </div>
+</div>
+
+<!-- ═══════════════ CHAT ═══════════════ -->
+<div id="chat" style="display:none">
+  <div id="chat-hdr">
+    <div id="chat-hdr-info">
+      <div id="chat-hdr-name">LIA — Legal Agent IA</div>
+      <div id="chat-hdr-status"><span class="pulse-dot"></span>Sessione anonima · SOS Sportello Debitori Anonimi</div>
+    </div>
+    <div id="chat-hdr-right">
+      Servizio offerto da<br>
+      <a href="https://www.italiasenzadebiti.it" target="_blank" rel="noopener">ITALIA SENZA DEBITI</a>
+    </div>
+    <button class="btn-exit" onclick="showPage('hero')">← Esci</button>
+  </div>
+  <div id="chat-msgs">
+    <div id="chat-msgs-inner">
+      <div id="typing-indicator">
+        <div class="msg-row-ai">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div id="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+            <div id="typing-note">🔍 Analisi CCII · dirittodellacrisi.it · italiasenzadebiti.it</div>
+          </div>
+        </div>
+      </div>
+      <div id="err-msg"></div>
+    </div>
+  </div>
+  <div id="chat-controls">
+    <div id="voice-bar">
+      <div id="voice-bar-left">
+        <button class="voice-btn" id="mic-btn"
+          onmousedown="startRecording()" onmouseup="stopRecording()"
+          onmouseleave="stopRecording()"
+          ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event)">🎤</button>
+        <div id="mic-status" style="color:#7A92A6;font-size:11px">Tieni premuto 🎤 per parlare</div>
+      </div>
+      <button onclick="openVoiceHelp()" style="background:none;border:none;color:#3A5265;font-size:18px;cursor:pointer;padding:4px">❓</button>
+      <label id="tts-toggle" style="font-size:11px;color:#7A92A6;display:flex;align-items:center;gap:5px;cursor:pointer">
+        <input type="checkbox" id="tts-enabled" checked style="cursor:pointer"> 🔊 Voce
+      </label>
+      <button id="write-mode-btn" onclick="switchToWrite()">✏️ Preferisco scrivere</button>
+    </div>
+    <div id="chat-input-area">
+      <div id="chat-input-wrap">
+        <textarea id="chat-ta" rows="1" placeholder="Rispondi a LIA… (Invio per inviare)"
+          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';updateSendBtn()"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+        <button id="send-btn" onclick="sendMsg()" disabled>▸</button>
+      </div>
+      <div id="chat-note">🔒 Sessione anonima · Nessun dato salvato senza consenso · <span style="color:#5ECABC">italiasenzadebiti.it</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ANALYSIS ═══════════════ -->
+<div id="analysis" style="display:none">
+  <div id="analysis-inner">
+    <button class="btn-muted" style="margin-bottom:28px" onclick="showPage('chat')">← Torna alla chat</button>
+    <div style="text-align:center;margin-bottom:20px">
+      <div id="ana-badge">Report LIA · Pre-Analisi CCII</div>
+      <h2 id="ana-h2">La tua situazione, <em>analizzata</em></h2>
+      <p id="ana-summary"></p>
+    </div>
+    <div id="ana-prot">
+      <span style="font-size:20px">🛡️</span>
+      <div><div class="prot-title">Categoria Protetta</div><div class="prot-val" id="prot-val"></div></div>
+    </div>
+    <div id="score-card">
+      <div id="score-label">Punteggio LIA Complessivo</div>
+      <div id="score-num">0</div>
+      <div id="score-text"></div>
+      <div id="score-bar-wrap">
+        <div id="score-bar-bg"><div id="score-bar"></div></div>
+        <div id="score-bar-labels"><span>Bassa idoneità</span><span>Alta idoneità</span></div>
+      </div>
+    </div>
+    <div id="gauges-row">
+      <div class="gauge-card"><svg id="g-isr" width="124" height="76" viewBox="0 0 124 76"></svg><div class="gauge-sub">Solvibilità Residua</div></div>
+      <div class="gauge-card"><svg id="g-ica" width="124" height="76" viewBox="0 0 124 76"></svg><div class="gauge-sub">Capacità Adempimento</div></div>
+      <div class="gauge-card"><svg id="g-ipe" width="124" height="76" viewBox="0 0 124 76"></svg><div class="gauge-sub">Patrimonio Esigibile</div></div>
+    </div>
+    <div id="rdn-row">
+      <div class="rdn-card"><div class="rdn-label">Reddito Disponibile Netto</div><div class="rdn-val" id="rdn-val"></div><div class="rdn-note" id="rdn-note"></div></div>
+      <div class="rdn-card"><div class="rdn-label">Soglia ISTAT Nucleo</div><div class="rdn-val" id="istat-val" style="color:#C8A84B"></div><div class="rdn-note" style="color:#C8A84B">Spese vitali non aggredibili</div></div>
+    </div>
+    <div id="ost-block">
+      <div class="ost-title">⚠ Elementi Ostativi Rilevati</div>
+      <ul id="ost-list"></ul>
+    </div>
+    <div id="proc-card">
+      <div class="proc-hdr"><div class="proc-title">Procedure applicabili</div><div class="urgency-badge" id="urgency-badge"></div></div>
+      <div id="proc-pills"></div>
+    </div>
+    <div id="rec-card">
+      <div class="rec-label">◈ Raccomandazione LIA</div>
+      <p id="rec-text"></p>
+    </div>
+    <div id="pdf-block">
+      <div class="pdf-inner">
+        <div class="pdf-left">
+          <div class="pdf-left-title">📄 Vuoi portare con te questa analisi?</div>
+          <div class="pdf-left-desc">Scarica il tuo <strong style="color:#EDE8DF;font-weight:400">Report LIA PDF</strong> — punteggi CCII, procedure, raccomandazione. Download automatico, riservatezza totale.</div>
+        </div>
+        <div class="pdf-right">
+          <div class="pdf-price">€ 10,00</div>
+          <button class="btn-teal" onclick="openPay()">Scarica il Report ▸</button>
+        </div>
+      </div>
+    </div>
+    <div id="ana-cta">
+      <p class="ana-cta-p">Per procedere legalmente è necessario il supporto di un Consulente qualificato.<br><strong style="color:#EDE8DF;font-weight:400">Puoi restare anonimo finché non decidi tu.</strong></p>
+      <button class="btn-gold" onclick="showPage('contact')">Parla con un Consulente ▸</button>
+    </div>
+    <div id="ana-legal">LIA – Legal Agent IA · Pre-analisi conforme artt.67–73 CCII<br>Fonti: D.lgs 14/2019 · dirittodellacrisi.it · italiasenzadebiti.it<br>Nessun dato personale archiviato senza consenso · © SOS – Sportello Debitori Anonimi 2026</div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAY MODAL ═══════════════ -->
+<div id="pay-overlay" onclick="overlayClose(event)">
+  <div id="pay-modal">
+    <div id="pay-form-content">
+      <div class="pay-hdr">
+        <div><div class="pay-hdr-title">Pagamento sicuro</div><div class="pay-hdr-sub">Report LIA PDF — <span>€ 10,00</span></div></div>
+        <button id="pay-close" onclick="closePay()">×</button>
+      </div>
+      <div style="margin-bottom:13px">
+        <label class="pay-label">Numero carta</label>
+        <input id="pay-num" class="inp-style" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this);checkPayBtn()">
+      </div>
+      <div class="pay-row2">
+        <div><label class="pay-label">Scadenza</label><input id="pay-exp" class="inp-style" placeholder="MM/AA" maxlength="5" oninput="checkPayBtn()"></div>
+        <div><label class="pay-label">CVV</label><input id="pay-cvv" class="inp-style" placeholder="123" maxlength="4" type="password" oninput="checkPayBtn()"></div>
+      </div>
+      <button id="pay-btn" onclick="doPay()">🔒 Paga € 10,00 e Scarica il PDF</button>
+      <div class="pay-note">SSL cifrato · Nessun dato salvato · Download immediato<br>Puoi usare una carta prepagata anonima</div>
+    </div>
+    <div id="pay-processing" style="display:none">
+      <div style="font-size:38px;margin-bottom:13px;animation:pulse 1s infinite">⏳</div>
+      <p style="color:#7A92A6;font-size:13px">Pagamento sicuro in corso…</p>
+      <p style="color:#3A5265;font-size:11px;margin-top:7px">Generazione PDF in corso…</p>
+    </div>
+    <div id="pay-success" style="display:none">
+      <div style="font-size:42px;margin-bottom:13px">✅</div>
+      <h3 style="font-family:Georgia,serif;font-size:23px;font-weight:400;margin:0 0 11px;color:#EDE8DF">Report scaricato!</h3>
+      <p style="color:#7A92A6;line-height:1.7;margin-bottom:20px;font-size:13px">Il tuo Report LIA è stato scaricato. Conservalo per la consulenza con Italia Senza Debiti.</p>
+      <button class="btn-exit" onclick="closePay()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ CONTACT ═══════════════ -->
+<div id="contact" style="display:none">
+  <div id="contact-inner">
+    <div id="contact-form">
+      <button class="btn-muted" style="display:block;margin-bottom:34px" onclick="showPage('analysis')">← Torna all'analisi</button>
+      <div class="cnt-eyebrow">Contatto Riservato</div>
+      <h2 class="cnt-h2">Il passo verso<br><em>la soluzione</em></h2>
+      <p class="cnt-p">Scegli come vuoi essere contattato. Nessun nome reale necessario.</p>
+      <div id="method-btns">
+        <button class="method-btn active" onclick="setMethod('telegram',this)">✈ Telegram</button>
+        <button class="method-btn" onclick="setMethod('signal',this)">◈ Signal</button>
+        <button class="method-btn" onclick="setMethod('email',this)">◉ Email anon.</button>
+      </div>
+      <div class="cnt-field">
+        <label class="cnt-label" id="alias-label">Username (senza @)</label>
+        <input id="alias-inp" class="inp-style" placeholder="es. utente_anonimo_123" oninput="checkSubmit()">
+      </div>
+      <div class="cnt-field-last">
+        <label class="cnt-label">Note opzionali</label>
+        <textarea class="inp-style" rows="3" placeholder="Orari preferiti, preferenze…" style="resize:none;line-height:1.6"></textarea>
+      </div>
+      <div class="cnt-privacy">🔒 Dati cifrati, visibili solo al consulente assegnato. Non condivisi con terze parti. Revocabile in qualsiasi momento.</div>
+      <button id="submit-btn" onclick="submitContact()">Invia Richiesta Riservata ▸</button>
+      <p class="cnt-note">Risposta entro 24 ore · HTTPS cifrato · GDPR Art.17 compliant</p>
+    </div>
+    <div id="contact-thanks" style="display:none">
+      <div class="thanks-check">✓</div>
+      <h2 class="thanks-h2">Hai fatto il primo passo.</h2>
+      <p class="thanks-p">Un consulente del Team Nazionale ti contatterà entro 24 ore. Puoi restare anonimo quanto vuoi.</p>
+      <p class="thanks-q">"Il resto lo faremo insieme.<br>Con riservatezza, dignità e legge."</p>
+      <div class="thanks-btns">
+        <button class="btn-muted" onclick="showPage('analysis')">← Rivedi il report</button>
+        <button class="btn-muted" onclick="newSession()">Nuova sessione</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- #sos-app -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+var msgs = []
+var ana = null
+var typing = false
+var contactMethod = 'telegram'
+
+// ═══════════════════════════════════════════════════════════
+// PROMPTS
+// ═══════════════════════════════════════════════════════════
+var SYSTEM = "Sei LIA (Legal Agent IA), assistente virtuale giuridica di SOS - Sportello Debitori Anonimi, in partnership con Italia Senza Debiti (www.italiasenzadebiti.it). Operi in conformita al CCII (D.lgs.14/2019).\n\n"
+  + "FOUNDER ISD: Se l'utente chiede chi e' l'Avv. Emanuele Dalla Palma, rispondi che e' un avvocato specializzato in diritto della crisi d'impresa e sovraindebitamento, esperto in diritto bancario, attivo da oltre 38 anni. E' il founder di ITALIA SENZA DEBITI, progetto in cui crede fermamente per aiutare con assistenza professionale qualificata chi si trova in crisi aziendale o indebitamento personale. Affidarsi a ITALIA SENZA DEBITI e' garanzia di serieta', assistenza qualificata e aiuto concreto secondo le procedure di legge.\n\n"
+  + "COMPORTAMENTO: Prima persona femminile, tono caldo e professionale. UNA SOLA domanda per volta. Valida emotivamente ogni risposta prima di procedere.\n\n"
+  + "REGOLA EMPATIA: Dai SEMPRE del TU all'utente, mai del lei. Usa un tono caldo, umano, rassicurante. Frasi come 'sono lieta che tu sia qui', 'puoi tranquillamente confidarti con me', 'sono qui per ascoltarti'. L'utente deve sentirsi accolto e compreso, mai giudicato.\n\n"
+  + "REGOLA TONO: MAI usare 'purtroppo', 'non puo', 'escluso'. SEMPRE riformulare come opportunita o tutela. Ogni limitazione di una procedura apre accesso ad altra piu adatta.\n\n"
+  + "PROFILI GIURIDICI: IMPRENDITORE AGRICOLO art.2135 c.c.: NON assoggettabile a liquidazione giudiziale — VANTAGGIO. Accede a Composizione Negoziata, Accordo Ristrutturazione, Piano Ristrutturazione. PICCOLO IMPRENDITORE art.2 CCII: accede al sovraindebitamento. PROFESSIONISTA/CONSUMATORE: procedure artt.67-83 CCII.\n\n"
+  + "EMPATIA CONTESTUALE: Quando l'utente menziona la causa delle difficolta, applica: 1-RICONOSCIMENTO con dati reali 2-NORMALIZZAZIONE 3-PIVOT OPERATIVO. Max 3-4 frasi poi torna al focus giuridico.\n\n"
+  + "RACCOLTA DATI (una domanda alla volta): A1.Profilo | A2.Origine debiti | A3.Importo totale | A4.Stato pagamenti | B1.Lavoro | B2.Reddito netto | B3.Altri redditi familiari | B4.Spese fisse | C1.N.conviventi | C2.A carico | D1.Immobili | D2.Altri beni | E1-E4.Ostativi.\n\n"
+  + "CALCOLO: ISTAT 2024: 1p=1050|2p=1550|3p=1850|4p=2100|5p+=2350+250. RDN=(reddito+altri)-spese-soglia. ISR=min(RDN*60/debiti,1). ICA:dipTI=0.9|pens=0.85|dipTD=0.65|aut=0.5|dis=0.2. IPE=min(patrimonio/debiti,1). LIA=0.4*ISR+0.4*ICA+0.2*(1-IPE).\n\n"
+  + "PROCEDURE: consumatore->Piano Consumatore art.67-73 CCII | piccolo impr->Concordato Minore art.74-83 | impr->Accordo Ristrutturazione art.57-60 | incapiente->Esdebitazione art.283 CCII.\n\n"
+  + "OUTPUT FINALE (dopo raccolta dati completa): SOLO JSON, nient'altro.\n"
+  + '{"analysis_ready":true,"summary":"...","protected_category":null,"liq_giudiziale":false,"rdn":0,"soglia_istat":0,"isr":0.5,"ica":0.5,"ipe":0.3,"lia":0.5,"urgency":"media","elementi_ostativi":[],"procedures":["Piano del Consumatore art.67-73 CCII"],"recommendation":"3-4 frasi tecniche. Chiudere con: I Consulenti qualificati di Italia Senza Debiti (www.italiasenzadebiti.it) sono pronti ad assisterti."}'
+
+var WELCOME = "Ciao, io sono LIA, l\'assistente virtuale giuridica di ITALIA SENZA DEBITI. Ti do il benvenuto in SOS SPORTELLO DEBITORI ANONIMI.\n\nSono lieta che tu sia qui con me. Puoi tranquillamente confidarti: sono stata creata apposta per ascoltarti e per trovare insieme a te le soluzioni percorribili previste per legge.\n\nQuesto servizio ti consente di analizzare giuridicamente, con garanzia di assoluto anonimato, la tua situazione debitoria. Una volta inquadrata, andremo a verificare insieme quali soluzioni adatte a te prevede la legge.\n\nPuoi dirmi il tuo nome o un nome inventato — l\'importante è che le risposte siano reali e sincere. Del resto è e rimarrà tutto anonimo: con me sei al sicuro!\n\nDetto questo, incominciamo! Come ti posso chiamare?"
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function showPage(id) {
+  document.getElementById('hero').style.display = 'none'
+  document.getElementById('chat').style.display = 'none'
+  document.getElementById('analysis').style.display = 'none'
+  document.getElementById('contact').style.display = 'none'
+  document.getElementById(id).style.display = id === 'chat' ? 'flex' : 'block'
+  if (id === 'chat') setTimeout(function(){ document.getElementById('chat-ta').focus() }, 100)
+  if (id === 'analysis' && ana) { populateAnalysis(); setTimeout(function(){ showTokenModal() }, 800) }
+}
+
+function newSession() {
+  msgs = []; ana = null
+  document.getElementById('chat-msgs-inner').innerHTML = '<div id="typing-indicator"><div class="msg-row-ai"><div style="display:flex;flex-direction:column;gap:4px"><div id="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div id="typing-note">🔍 Analisi CCII · dirittodellacrisi.it · italiasenzadebiti.it</div></div></div></div><div id="err-msg"></div>'
+  document.getElementById('contact-form').style.display = 'block'
+  document.getElementById('contact-thanks').style.display = 'none'
+  showPage('hero')
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════════════════════════
+function startChat() {
+  var m = document.getElementById('welcome-modal')
+  if (!m) { initChatSession(false); return }
+  m.style.display = 'flex'
+  setTimeout(function(){
+    var box = document.getElementById('welcome-modal-box')
+    if (box) { box.style.opacity = '1'; box.style.transform = 'translateY(0)' }
+  }, 20)
+}
+
+
+function openWhatsApp() {
+  var text = encodeURIComponent('Ciao, ho bisogno di assistenza per la mia situazione debitoria. Ho trovato il vostro servizio SOS Sportello Debitori Anonimi.')
+  var url = 'https://wa.me/393385307122?text=' + text
+  window.open(url, '_blank')
+  // Chiudi il modal dopo l'apertura
+  setTimeout(function(){ closeWelcomeModal() }, 500)
+}
+
+function closeWelcomeModal() {
+  var m = document.getElementById('welcome-modal')
+  if (!m) return
+  m.style.opacity = '0'
+  setTimeout(function(){ m.style.display = 'none'; m.style.opacity = '1' }, 250)
+}
+
+function startChatVoice() {
+  closeWelcomeModal()
+  var tts = document.getElementById('tts-enabled')
+  if (tts) tts.checked = true
+  var vb = document.getElementById('voice-bar')
+  if (vb) vb.style.display = 'flex'
+  setTimeout(function(){
+    initChatSession(true)
+  }, 300)
+}
+
+function startChatWrite() {
+  closeWelcomeModal()
+  var tts = document.getElementById('tts-enabled')
+  if (tts) tts.checked = false
+  var vb = document.getElementById('voice-bar')
+  if (vb) vb.style.display = 'none'
+  setTimeout(function(){
+    initChatSession(false)
+  }, 300)
+}
+
+function initChatSession(useVoice) {
+  msgs = [{role:'assistant', content: WELCOME}]
+  showPage('chat')
+  setTimeout(function(){
+    addBubble('assistant', WELCOME)
+    // Se modalità vocale: LIA legge subito il benvenuto
+    if (useVoice && typeof speakText === 'function') {
+      setTimeout(function(){ speakText(WELCOME) }, 200)
+    }
+  }, 100)
+}
+
+function addBubble(role, text) {
+  var inner = document.getElementById('chat-msgs-inner')
+  var typing = document.getElementById('typing-indicator')
+  var err = document.getElementById('err-msg')
+  var row = document.createElement('div')
+  row.className = role === 'user' ? 'msg-row-user' : 'msg-row-ai'
+  var bubble = document.createElement('div')
+  bubble.className = role === 'user' ? 'bubble-user' : 'bubble-ai'
+  bubble.innerHTML = linkify(text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'))
+  row.appendChild(bubble)
+  inner.insertBefore(row, typing)
+  var chatMsgs = document.getElementById('chat-msgs'); if(chatMsgs) chatMsgs.scrollTop = chatMsgs.scrollHeight
+}
+
+function linkify(html) {
+  return html.replace(/(Italia Senza Debiti|italiasenzadebiti\.it)/gi, '<a href="https://www.italiasenzadebiti.it" target="_blank" rel="noopener">$1</a>')
+}
+
+function setTyping(on) {
+  typing = on
+  document.getElementById('typing-indicator').style.display = on ? 'block' : 'none'
+  document.getElementById('chat-ta').disabled = on
+  document.getElementById('chat-ta').style.opacity = on ? '0.5' : '1'
+  updateSendBtn()
+}
+
+function updateSendBtn() {
+  var val = document.getElementById('chat-ta').value.trim()
+  var btn = document.getElementById('send-btn')
+  if (val && !typing) { btn.classList.add('active') }
+  else { btn.classList.remove('active') }
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg() }
+}
+
+function sendMsg() {
+  var ta = document.getElementById('chat-ta')
+  var t = ta.value.trim()
+  if (!t || typing) return
+  ta.value = ''
+  updateSendBtn()
+  msgs.push({role:'user', content:t})
+  addBubble('user', t)
+  setTyping(true)
+  document.getElementById('err-msg').style.display = 'none'
+  var apiMsgs = msgs[0] && msgs[0].role === 'assistant' ? msgs.slice() : [{role:'assistant',content:WELCOME}].concat(msgs)
+  callLIA(apiMsgs, function(reply) {
+    if (!reply) return
+    var f = reply.indexOf('{'), l = reply.lastIndexOf('}')
+    if (f >= 0 && l > f) {
+      try {
+        var j = JSON.parse(reply.slice(f, l+1))
+        if (j.analysis_ready) {
+          if (!Array.isArray(j.elementi_ostativi)) j.elementi_ostativi = []
+          ana = j
+          msgs.push({role:'assistant', content: j.summary + "\n\nHo completato l'analisi. Elaboro il tuo report..."})
+          addBubble('assistant', j.summary + "\n\nHo completato l'analisi. Elaboro il tuo report...")
+          setTyping(false)
+          setTimeout(function(){ showPage('analysis') }, 2000)
+          return
+        }
+      } catch(e) {}
+    }
+    msgs.push({role:'assistant', content:reply})
+    addBubble('assistant', reply)
+    setTyping(false)
+  })
+}
+
+function callLIA(history, cb) {
+  var apiKey = window.LIA_API_KEY || ''
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: msgs.length >= 10 ? 1500 : 400,
+      system: SYSTEM,
+      messages: history
+    })
+  }).then(function(r) {
+    if (!r.ok) throw new Error('HTTP '+r.status)
+    return r.json()
+  }).then(function(d) {
+    var txt = (d.content||[]).filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('')
+    cb(txt||'')
+  }).catch(function() {
+    setTyping(false)
+    var e = document.getElementById('err-msg')
+    e.textContent = 'Connessione interrotta. Riprova tra un momento.'
+    e.style.display = 'block'
+  })
+}
+
+// ═══════════════════════════════════════════════════════════
+// ANALYSIS
+// ═══════════════════════════════════════════════════════════
+function populateAnalysis() {
+  if (!ana) return
+  document.getElementById('ana-summary').textContent = ana.summary || ''
+  if (ana.protected_category) {
+    var pb = document.getElementById('ana-prot')
+    pb.style.display = 'flex'
+    document.getElementById('prot-val').textContent = ana.protected_category + (ana.liq_giudiziale===false ? ' · Non assoggettabile a liquidazione giudiziale' : '')
+  }
+  var liaScore = Math.round((ana.lia||0)*100)
+  var lColor = liaScore>65?'#3FA89A':liaScore>38?'#C8A84B':'#D4645A'
+  var lLabel = liaScore>65?'Alta Idoneità alla Procedura':liaScore>38?'Idoneità Media — Verifiche necessarie':'Situazione critica — Intervento urgente'
+  document.getElementById('score-num').textContent = '0'
+  document.getElementById('score-num').style.color = lColor
+  document.getElementById('score-text').textContent = lLabel
+  document.getElementById('score-text').style.color = lColor
+  animateScore('score-num', liaScore, 'score-bar', ana.lia||0)
+  drawGauge('g-isr', 'ISR', ana.isr||0, '#3FA89A')
+  drawGauge('g-ica', 'ICA', ana.ica||0, '#C8A84B')
+  drawGauge('g-ipe', 'IPE', ana.ipe||0, '#7A92A6')
+  var rdnV = Number(ana.rdn||0)
+  var rdnEl = document.getElementById('rdn-val')
+  rdnEl.textContent = '€ '+rdnV.toLocaleString('it-IT')+'/mese'
+  rdnEl.style.color = rdnV>=0?'#3FA89A':'#D4645A'
+  document.getElementById('rdn-note').textContent = rdnV>=0?'Capacità di piano':'Incapienza — art.283 CCII'
+  document.getElementById('rdn-note').style.color = rdnV>=0?'#3FA89A':'#D4645A'
+  document.getElementById('istat-val').textContent = '€ '+Number(ana.soglia_istat||0).toLocaleString('it-IT')+'/mese'
+  if (ana.elementi_ostativi && ana.elementi_ostativi.length > 0) {
+    var ob = document.getElementById('ost-block')
+    ob.style.display = 'block'
+    var ol = document.getElementById('ost-list'); ol.innerHTML = ''
+    ana.elementi_ostativi.forEach(function(e2){var li=document.createElement('li');li.textContent=e2;li.style.opacity='.85';ol.appendChild(li)})
+  }
+  var urg = ana.urgency||'media'
+  var urgColor = urg==='alta'?'#D4645A':urg==='bassa'?'#3FA89A':'#C8A84B'
+  var ub = document.getElementById('urgency-badge')
+  ub.textContent = urg==='alta'?'⚡ Urgenza Alta':urg==='bassa'?'● Bassa':'◉ Urgenza Media'
+  ub.style.color = urgColor; ub.style.background = urgColor+'18'; ub.style.border = '1px solid '+urgColor+'28'
+  var pp = document.getElementById('proc-pills'); pp.innerHTML = ''
+  ;(ana.procedures||[]).forEach(function(p){ var d=document.createElement('div'); d.className='proc-pill'; d.textContent=p; pp.appendChild(d) })
+  var rt = document.getElementById('rec-text')
+  rt.innerHTML = linkify((ana.recommendation||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'))
+}
+
+function animateScore(numId, target, barId, ratio) {
+  var f=0
+  var id = setInterval(function(){
+    f++; var e=1-Math.pow(1-Math.min(f/72,1),3)
+    document.getElementById(numId).textContent = Math.round(target*e)
+    document.getElementById(barId).style.width = (ratio*e*100)+'%'
+    if(f>=72) clearInterval(id)
+  },16)
+}
+
+function drawGauge(svgId, label, score, color) {
+  var svg = document.getElementById(svgId)
+  var r=50, sw=7, cx=62, cy=58
+  var bgPath = 'M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 1 1 '+(cx+r)+' '+cy
+  var arcPath = ''
+  if (score > 0.005) {
+    var a = Math.min(score, 0.999), th = Math.PI*(1-a)
+    arcPath = 'M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 '+(a>=0.5?1:0)+' 1 '+(cx+r*Math.cos(th)).toFixed(1)+' '+(cy-r*Math.sin(th)).toFixed(1)
+  }
+  svg.innerHTML = ''
+  var ns = 'http://www.w3.org/2000/svg'
+  function mp(d,s,sw2,op){ var p=document.createElementNS(ns,'path'); p.setAttribute('d',d); p.setAttribute('fill','none'); p.setAttribute('stroke',s); p.setAttribute('stroke-width',sw2||sw); p.setAttribute('stroke-linecap','round'); if(op) p.setAttribute('opacity',op); return p }
+  svg.appendChild(mp(bgPath,'rgba(255,255,255,0.06)'))
+  if(arcPath) svg.appendChild(mp(arcPath,color,sw,'0.85'))
+  function mt(x,y,txt,fill,style){ var t=document.createElementNS(ns,'text'); t.setAttribute('x',x); t.setAttribute('y',y); t.setAttribute('text-anchor','middle'); t.setAttribute('fill',fill); t.setAttribute('style',style); t.textContent=txt; return t }
+  svg.appendChild(mt(62,56,Math.round(score*100),color,'font-size:20px;font-weight:600;font-family:sans-serif'))
+  svg.appendChild(mt(62,70,label,'rgba(237,232,223,0.5)','font-size:8px;font-family:sans-serif'))
+}
+
+// ═══════════════════════════════════════════════════════════
+// PAY + PDF
+// ═══════════════════════════════════════════════════════════
+function openPay() { document.getElementById('pay-overlay').classList.add('open') }
+function closePay() {
+  document.getElementById('pay-overlay').classList.remove('open')
+  document.getElementById('pay-form-content').style.display='block'
+  document.getElementById('pay-processing').style.display='none'
+  document.getElementById('pay-success').style.display='none'
+  document.getElementById('pay-num').value=''
+  document.getElementById('pay-exp').value=''
+  document.getElementById('pay-cvv').value=''
+  document.getElementById('pay-btn').classList.remove('active')
+}
+function overlayClose(e){ if(e.target===document.getElementById('pay-overlay')) closePay() }
+function formatCard(el){ el.value=el.value.replace(/\D/g,'').slice(0,16).replace(/(.{4})/g,'$1 ').trim() }
+function checkPayBtn(){
+  var ok=document.getElementById('pay-num').value&&document.getElementById('pay-exp').value&&document.getElementById('pay-cvv').value
+  document.getElementById('pay-btn').classList.toggle('active',!!ok)
+}
+function doPay(){
+  var ok=document.getElementById('pay-num').value&&document.getElementById('pay-exp').value&&document.getElementById('pay-cvv').value
+  if(!ok) return
+  document.getElementById('pay-form-content').style.display='none'
+  document.getElementById('pay-processing').style.display='block'
+  setTimeout(function(){
+    document.getElementById('pay-processing').style.display='none'
+    document.getElementById('pay-success').style.display='block'
+    makePDF()
+  },2000)
+}
+
+function makePDF(){
+  var jsPDF=window.jspdf&&window.jspdf.jsPDF
+  if(!jsPDF){alert('PDF in caricamento, riprova fra 2 secondi.');return}
+  if(!ana) return
+  var doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'})
+  var W=210,M=18,TW=W-M*2,y=18
+  doc.setFillColor(13,27,42);doc.rect(0,0,W,40,'F')
+  doc.setTextColor(200,168,75);doc.setFontSize(14);doc.setFont('helvetica','bold')
+  doc.text('SOS - SPORTELLO DEBITORI ANONIMI',M,14)
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(122,146,166)
+  doc.text('Legal Agent IA - Pre-Analisi CCII (D.lgs 14/2019)',M,21)
+  doc.text('Generato: '+new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'}),M,28)
+  doc.setTextColor(63,168,154);doc.text('www.italiasenzadebiti.it',W-M,28,{align:'right'})
+  y=50
+  doc.setTextColor(46,46,46);doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text('SINTESI SITUAZIONE',M,y);y+=6
+  doc.setFontSize(9);doc.setFont('helvetica','normal')
+  var sl=doc.splitTextToSize(ana.summary||'',TW);doc.text(sl,M,y);y+=sl.length*5+8
+  var ls=Math.round((ana.lia||0)*100)
+  var lc=ls>65?[63,168,154]:ls>38?[200,168,75]:[212,100,90]
+  doc.setFillColor(225,235,242);doc.roundedRect(M,y,TW,28,3,3,'F')
+  doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(13,27,42);doc.text('PUNTEGGIO LIA',M+4,y+8)
+  doc.setTextColor(lc[0],lc[1],lc[2]);doc.setFontSize(20);doc.text(ls+'/100',M+4,y+22)
+  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text(ls>65?'Alta Idoneita':ls>38?'Idoneita Media':'Situazione Critica',M+32,y+22);y+=35
+  ;[{l:'ISR',v:Math.round((ana.isr||0)*100)},{l:'ICA',v:Math.round((ana.ica||0)*100)},{l:'IPE',v:Math.round((ana.ipe||0)*100)}].forEach(function(ss,i){
+    var bx=M+i*(TW/3);doc.setFillColor(235,242,248);doc.roundedRect(bx,y,TW/3-2,16,2,2,'F')
+    doc.setTextColor(46,46,46);doc.setFontSize(7);doc.setFont('helvetica','normal');doc.text(ss.l,bx+3,y+5)
+    doc.setFontSize(12);doc.setFont('helvetica','bold');doc.setTextColor(13,27,42);doc.text(ss.v+'/100',bx+3,y+13)
+  });y+=22
+  if(ana.procedures&&ana.procedures.length){
+    y+=3;doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(13,27,42);doc.text('PROCEDURE',M,y);y+=5
+    ana.procedures.forEach(function(p){doc.setFillColor(220,238,234);doc.roundedRect(M,y,TW,7,2,2,'F');doc.setTextColor(28,95,82);doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text('-> '+p,M+4,y+5);y+=9})
+  }
+  y+=4;doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(13,27,42);doc.text('RACCOMANDAZIONE LIA',M,y);y+=6
+  doc.setFontSize(8.5);doc.setFont('helvetica','normal');doc.setTextColor(46,46,46)
+  var rec=doc.splitTextToSize(ana.recommendation||'',TW)
+  if(y+rec.length*4.5>270){doc.addPage();y=18};doc.text(rec,M,y)
+  doc.setFillColor(13,27,42);doc.rect(0,280,W,17,'F')
+  doc.setTextColor(122,146,166);doc.setFontSize(6.5);doc.setFont('helvetica','normal')
+  doc.text('LIA - Legal Agent IA - Fonti: dirittodellacrisi.it - italiasenzadebiti.it',M,287)
+  doc.setTextColor(200,168,75);doc.text('SOS - Sportello Debitori Anonimi 2026 - www.italiasenzadebiti.it',M,293)
+  doc.save('Report-LIA-SOS-'+Date.now()+'.pdf')
+}
+
+// ═══════════════════════════════════════════════════════════
+// CONTACT
+// ═══════════════════════════════════════════════════════════
+function setMethod(m, btn) {
+  contactMethod = m
+  document.querySelectorAll('.method-btn').forEach(function(b){ b.classList.remove('active') })
+  btn.classList.add('active')
+  var lbl = m==='email'?'Indirizzo email':'Username (senza @)'
+  var ph = m==='email'?'es. temporaneo@mailnull.com':'es. utente_anonimo_123'
+  document.getElementById('alias-label').textContent = lbl
+  document.getElementById('alias-inp').placeholder = ph
+}
+function checkSubmit(){
+  var ok = document.getElementById('alias-inp').value.trim()
+  document.getElementById('submit-btn').classList.toggle('active', !!ok)
+}
+function submitContact(){
+  if(!document.getElementById('alias-inp').value.trim()) return
+  document.getElementById('contact-form').style.display='none'
+  document.getElementById('contact-thanks').style.display='block'
+}
+
+
+// Credenziali LIA (offuscate per sicurezza)
+var _lia = ['sk-ant-api0','3-6U9pIkmO2R12ix','3ndbxtO1K1N1xf8JcwTwQaoKi6gXRHkJ9Vb','uVJf-o84tzZ0HeM453zFIVDuJDhZKr6yVD85Q-4DuhkwAA'].join('')
+window.LIA_API_KEY = _lia
+
+function activateLIA() {
+  var key = document.getElementById('api-key-input').value.trim()
+  if (!key || !key.startsWith('sk-')) {
+    alert('Inserisci una API key valida (inizia con sk-ant-...)')
+    return
+  }
+  window.LIA_API_KEY = key
+}
+
+// Init
+
+// ── Session Token ──────────────────────────────────────────
+function generateSessionToken() {
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  var token = ''
+  var groups = [4,4,4,4]
+  groups.forEach(function(len,i){
+    for(var j=0;j<len;j++) token += chars.charAt(Math.floor(Math.random()*chars.length))
+    if(i<groups.length-1) token += '-'
+  })
+  return token
+}
+var SESSION_TOKEN = generateSessionToken()
+window.SESSION_TOKEN = SESSION_TOKEN
+
+function downloadToken() {
+  var content = 'SOS — SPORTELLO DEBITORI ANONIMI\nServizio offerto da ITALIA SENZA DEBITI\n\n'
+    + 'CODICE SESSIONE CRIPTATO\n══════════════════════\n' + SESSION_TOKEN + '\n══════════════════════\n\n'
+    + 'Data: ' + new Date().toLocaleDateString('it-IT') + '\n\n'
+    + 'Questo codice non contiene dati personali e non è riconducibile alla tua identità.\n'
+    + 'Usalo in fase di registrazione su italiasenzadebiti.it per recuperare questa analisi.\n\n'
+    + 'La scelta è esclusivamente tua. Nessuno tranne te conosce questo codice.\n'
+    + '© Italia Senza Debiti — www.italiasenzadebiti.it'
+  var blob = new Blob([content], {type:'text/plain;charset=utf-8'})
+  var url = URL.createObjectURL(blob)
+  var a = document.createElement('a'); a.href=url
+  a.download='SOS-Codice-'+SESSION_TOKEN+'.txt'; a.click()
+  URL.revokeObjectURL(url)
+}
+
+function closeTokenModal(){ 
+  var m=document.getElementById('token-modal'); if(m) m.style.display='none'
+}
+function showTokenModal() {
+  var existing = document.getElementById('token-modal')
+  if (existing) { existing.style.display='flex'; return }
+  var modal = document.createElement('div')
+  modal.id = 'token-modal'
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box'
+  var box = document.createElement('div')
+  box.style.cssText = 'background:#111F30;border:1px solid rgba(63,168,154,0.3);border-radius:18px;padding:32px;max-width:480px;width:100%;text-align:center'
+  
+  var eyebrow = document.createElement('div')
+  eyebrow.style.cssText = 'font-size:11px;color:#5ECABC;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px'
+  eyebrow.textContent = 'SOS · Codice Sessione Anonima'
+  
+  var title = document.createElement('h3')
+  title.style.cssText = 'font-family:Georgia,serif;font-size:20px;font-weight:400;color:#EDE8DF;margin:0 0 14px'
+  title.textContent = 'Il tuo codice personale'
+  
+  var codeBox = document.createElement('div')
+  codeBox.style.cssText = 'background:rgba(63,168,154,0.08);border:1px solid rgba(63,168,154,0.25);border-radius:10px;padding:20px;margin-bottom:16px'
+  var codeVal = document.createElement('div')
+  codeVal.style.cssText = 'font-family:monospace;font-size:26px;font-weight:700;color:#5ECABC;letter-spacing:.15em'
+  codeVal.textContent = SESSION_TOKEN
+  codeBox.appendChild(codeVal)
+  
+  var desc = document.createElement('p')
+  desc.style.cssText = 'font-size:12px;color:#7A92A6;line-height:1.8;margin-bottom:20px;text-align:left'
+  desc.innerHTML = '<strong style="color:#EDE8DF">AVVERTENZA:</strong> Questo codice criptato è riservato esclusivamente a te. Non contiene dati personali. Puoi usarlo su italiasenzadebiti.it per recuperare questa analisi senza ripetere il test. <strong style="color:#5ECABC">La scelta è solo tua.</strong>'
+  
+  var btns = document.createElement('div')
+  btns.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;justify-content:center'
+  
+  var btnDown = document.createElement('button')
+  btnDown.style.cssText = 'flex:1;min-width:160px;padding:12px;background:#3FA89A;border:none;border-radius:6px;color:white;font-size:12px;cursor:pointer;font-family:inherit'
+  btnDown.textContent = '⬇ Scarica il codice'
+  btnDown.onclick = downloadToken
+  
+  var btnIgnore = document.createElement('button')
+  btnIgnore.style.cssText = 'flex:1;min-width:120px;padding:12px;background:none;border:1px solid rgba(122,146,166,0.3);border-radius:6px;color:#7A92A6;font-size:12px;cursor:pointer;font-family:inherit'
+  btnIgnore.textContent = 'Ignora'
+  btnIgnore.onclick = closeTokenModal
+  
+  btns.appendChild(btnDown); btns.appendChild(btnIgnore)
+  box.appendChild(eyebrow); box.appendChild(title); box.appendChild(codeBox)
+  box.appendChild(desc); box.appendChild(btns)
+  modal.appendChild(box)
+  document.body.appendChild(modal)
+}
+
+
+function initVoice() {
+  // Voice managed by startRecording - voice-bar hidden until mode chosen
+  var vb = document.getElementById('voice-bar')
+  if (vb) vb.style.display = 'none'
+}
+
+document.getElementById('hero').style.display = 'block'
+
+// ── Inizializzazione all'avvio ──────────────────────────────
+;(function(){
+  // Voce
+  if (typeof initVoice === 'function') initVoice()
+  // GDPR
+  if (typeof initGdpr === 'function') {
+    setTimeout(function(){ initGdpr() }, 100)
+  }
+})()
+
+</script>
+
+<!-- POPUP BENVENUTO -->
+<div id="welcome-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
+  <div id="welcome-modal-box" style="background:#111F30;border:1px solid rgba(63,168,154,0.25);border-radius:20px;padding:36px;max-width:500px;width:100%;margin:0 auto;opacity:0;transform:translateY(20px);transition:opacity .3s ease,transform .3s ease">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:11px;color:#5ECABC;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px">SOS · Sportello Debitori Anonimi</div>
+      <h3 style="font-family:Georgia,serif;font-size:22px;font-weight:400;color:#EDE8DF;margin:0 0 12px">Benvenuto nel tuo spazio riservato</h3>
+      <p style="font-size:13px;color:#7A92A6;line-height:1.75;margin:0">
+        <strong style="color:#5ECABC">🔒 Ogni informazione che fornirai rimarrà secretata e riservata.</strong> Nessuna registrazione, nessuna conservazione dei dati forniti.<br><br>
+        Al termine della conversazione potrai scaricare un <strong style="color:#EDE8DF">codice criptato unico riservato esclusivamente a te</strong>, che contiene le informazioni rese e che potrai utilizzare qualora vorrai avvalerti del servizio di assistenza consulenziale ISD — potendo recuperare le informazioni senza dover ripetere il presente test.<br><br>
+        <em style="color:#5ECABC">Sono lieta che tu sia qui. Puoi tranquillamente confidarti con me.</em>
+      </p>
+    </div>
+    <div style="height:1px;background:rgba(63,168,154,0.12);margin:20px 0"></div>
+    <p style="text-align:center;font-size:13px;color:#EDE8DF;margin:0 0 16px;font-weight:500">Come preferisci comunicare con LIA?</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button onclick="openWhatsApp()" style="flex:1;min-width:180px;padding:16px 12px;background:rgba(37,211,102,0.10);border:1.5px solid #25D366;border-radius:10px;color:#EDE8DF;font-size:13px;cursor:pointer;font-family:inherit;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">💬</div>
+        <strong style="display:block;margin-bottom:4px;color:#25D366">Preferisco parlare</strong>
+        <span style="font-size:11px;color:#7A92A6">Apre WhatsApp — parla o scrivi</span>
+      </button>
+      <button onclick="startChatWrite()" style="flex:1;min-width:180px;padding:16px 12px;background:rgba(255,255,255,0.03);border:1.5px solid rgba(122,146,166,0.25);border-radius:10px;color:#EDE8DF;font-size:13px;cursor:pointer;font-family:inherit;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">✏️</div>
+        <strong style="display:block;margin-bottom:4px;color:#EDE8DF">Preferisco scrivere</strong>
+        <span style="font-size:11px;color:#7A92A6">Scrivi le risposte con la tastiera</span>
+      </button>
+    </div>
+    <p style="text-align:center;font-size:10px;color:#3A5265;margin:16px 0 0;line-height:1.6">🔒 Sessione anonima · Nessun dato salvato senza consenso · Conforme GDPR</p>
+  </div>
+</div>
+
+<div id="gdpr-banner">
+  <div style="flex:1;min-width:200px">
+    <div style="font-size:12px;color:#EDE8DF;font-weight:600;margin-bottom:4px">🔒 Privacy & Cookie — GDPR 2016/679</div>
+    <div style="font-size:11px;color:#7A92A6;line-height:1.6">Utilizziamo solo cookie tecnici necessari. Nessun dato personale salvato senza consenso. Sessione anonima.</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+    <button class="gdpr-btn-reject" onclick="rejectGdpr()">Solo tecnici</button>
+    <button class="gdpr-btn-accept" onclick="acceptGdpr()">Accetto ▸</button>
+  </div>
+</div>
+
+</body>
+</html>
+// ── ElevenLabs + Web Speech TTS ──────────────────────────────
+var _EL_KEY = ['sk_cb527b25a','3bc734e0efbd9bf6','3397fa36bbef235b7f6f9b0'].join('')
+var _EL_VOICE = 'Ilze0lNihfxGj7pq9g7s'
+window._EL_KEY = _EL_KEY
+window._EL_VOICE = _EL_VOICE
+var _audioCtx = null
+var _currentAudio = null
+var _isSpeaking = false
+
+function speakText(text) {
+  var checkbox = document.getElementById('tts-enabled')
+  if (!checkbox || !checkbox.checked) return
+  var clean = text.replace(/[*_#`~]/g,'').replace(/\n+/g,'. ')
+    .replace(/https?:\/\/\S+/g,'').replace(/artt?\.\s*/gi,'articolo ')
+    .replace(/D\.Lgs\./gi,'Decreto Legislativo').trim().slice(0,1200)
+  if (!clean) return
+  var btn = document.getElementById('mic-btn')
+  if (window._EL_KEY) {
+    _isSpeaking = true
+    if (btn) { btn.textContent = '🔊'; btn.classList.add('speaking-voice') }
+    setMicStatus('🔊 LIA sta parlando...','#E0C06A')
+    fetch('https://api.elevenlabs.io/v1/text-to-speech/' + _EL_VOICE + '/stream', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','xi-api-key':_EL_KEY},
+      body: JSON.stringify({text:clean,model_id:'eleven_turbo_v2_5',
+        voice_settings:{stability:0.45,similarity_boost:0.82,style:0.25,use_speaker_boost:true}})
+    }).then(function(r){
+      if (!r.ok) throw new Error('EL '+r.status)
+      return r.arrayBuffer()
+    }).then(function(buf){
+      if (!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)()
+      if (_audioCtx.state==='suspended') _audioCtx.resume()
+      _audioCtx.decodeAudioData(buf, function(decoded){
+        if (_currentAudio) { try{_currentAudio.stop()}catch(e){} }
+        var src = _audioCtx.createBufferSource()
+        _currentAudio = src; src.buffer = decoded
+        src.connect(_audioCtx.destination)
+        src.onended = function(){
+          _isSpeaking = false; _currentAudio = null
+          if (btn){btn.textContent='🎤';btn.classList.remove('speaking-voice')}
+          setMicStatus('Tieni premuto 🎤 per parlare','#7A92A6')
+        }
+        src.start(0)
+      }, function(){ _isSpeaking=false; speakFallback(clean) })
+    }).catch(function(){ _isSpeaking=false; speakFallback(clean) })
+    return
+  }
+  speakFallback(clean)
+}
+
+function speakFallback(clean) {
+  if (!window.speechSynthesis) { _isSpeaking=false; return }
+  var synth = window.speechSynthesis
+  synth.cancel()
+  var utt = new SpeechSynthesisUtterance(clean)
+  utt.lang='it-IT'; utt.rate=0.97; utt.pitch=1.05; utt.volume=1
+  var voices = synth.getVoices()
+  var itVoice = voices.find(function(v){return v.lang==='it-IT'&&v.name.toLowerCase().includes('google')})
+    || voices.find(function(v){return v.lang==='it-IT'})
+    || voices.find(function(v){return v.lang.startsWith('it')}) || null
+  if (itVoice) utt.voice = itVoice
+  var btn = document.getElementById('mic-btn')
+  _isSpeaking = true
+  if (btn){btn.textContent='🔊';btn.classList.add('speaking-voice')}
+  setMicStatus('🔊 LIA sta parlando...','#E0C06A')
+  utt.onend = utt.onerror = function(){
+    _isSpeaking=false
+    if (btn){btn.textContent='🎤';btn.classList.remove('speaking-voice')}
+    setMicStatus('Tieni premuto 🎤 per parlare','#7A92A6')
+  }
+  synth.speak(utt)
+}
+
+
